@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://nwbort.github.io/a-z-competition-law/sitemap.xml

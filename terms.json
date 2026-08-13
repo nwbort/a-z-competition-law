@@ -1,0 +1,47 @@
+{
+  "_readme": "This is the whole dictionary. Add a word by adding an object to \"terms\" and running: python3 build.py. Fields: term (required), aka, definition (string or list of paragraphs), plainly, tags, seeAlso, emoji.",
+
+  "site": {
+    "title": "A–Z Competition Law Dictionary",
+    "tagline": "Australian competition law, one friendly word at a time.",
+    "description": "A cheerful, plain-English dictionary of Australian competition law terms, published one letter at a time from A to Z.",
+    "author": "Nicholas Twort",
+    "baseUrl": "https://nwbort.github.io/a-z-competition-law",
+    "lang": "en-AU"
+  },
+
+  "terms": [
+    {
+      "term": "ACCC",
+      "aka": "Australian Competition and Consumer Commission",
+      "emoji": "🏛️",
+      "definition": [
+        "Otherwise known as the Australian Competition and Consumer Commission.",
+        "Federal regulator of competition and consumer law in Australia."
+      ],
+      "tags": ["regulator", "enforcement"],
+      "seeAlso": ["ACL"]
+    },
+    {
+      "term": "ACL",
+      "aka": "Australian Consumer Law",
+      "emoji": "🛒",
+      "definition": [
+        "Otherwise known as the Australian Consumer Law.",
+        "Federal legislation for consumer law regulation in Australia - found in Schedule 2 of the Competition and Consumer Act 2010 (Cth)."
+      ],
+      "tags": ["legislation", "consumer"],
+      "seeAlso": ["ACCC"]
+    },
+    {
+      "term": "Antitrust",
+      "emoji": "🌏",
+      "definition": [
+        "Often used in overseas jurisdictions including the United States to refer to the practice of competition law.",
+        "Refers to rules and laws that promote fair competition between businesses."
+      ],
+      "tags": ["concept", "international"],
+      "seeAlso": ["ACCC"]
+    }
+  ]
+}
