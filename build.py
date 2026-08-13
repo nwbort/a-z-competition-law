@@ -339,8 +339,8 @@ def page_home(site: dict, terms: list[dict], topics: list[dict]) -> str:
             )
         else:
             tiles.append(
-                f'        <li><a class="letter soon" href="{letter.lower()}/" aria-label="{letter} — coming soon">'
-                f'{letter}<span class="count" aria-hidden="true">soon</span></a></li>'
+                f'        <li><span class="letter soon" aria-label="{letter} — coming soon">'
+                f'{letter}<span class="count" aria-hidden="true">soon</span></span></li>'
             )
 
     newest = "".join(term_card(t, "") for t in terms)
@@ -675,7 +675,7 @@ def build() -> None:
           + (f"Sitemap: {site['baseUrl']}/sitemap.xml\n" if site["baseUrl"] else ""))
 
     if site["baseUrl"]:
-        urls = (["/"] + [f"/{l.lower()}/" for l in LETTERS] + [t["url"] for t in terms]
+        urls = (["/"] + [f"/{l.lower()}/" for l in live] + [t["url"] for t in terms]
                 + ["/topics/"] + [topic["url"] for topic in topics])
         today = date.today().isoformat()
         entries = "".join(

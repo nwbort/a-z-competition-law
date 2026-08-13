@@ -408,6 +408,7 @@ main { padding-bottom: 3.5rem; }
   border-color: var(--ghost-line);
   color: var(--ghost-ink);
   box-shadow: none;
+  cursor: default;
 }
 .letter.soon .count { font-size: 0.9rem; opacity: 0.9; }
 
