@@ -584,20 +584,6 @@ ICON = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
 </svg>
 """
 
-OFL_NOTE = """The fonts in this folder are used under the SIL Open Font License 1.1.
-
-  Fredoka    — Copyright The Fredoka Project Authors
-               https://github.com/hafontia/Fredoka
-  Quicksand  — Copyright The Quicksand Project Authors
-               https://github.com/andrew-paglinawan/QuicksandFamily
-
-Full licence text: https://openfontlicense.org/
-
-They are served from this site rather than from a font CDN so that visiting
-the dictionary makes no third-party requests.
-"""
-
-
 def build() -> None:
     site, terms, topics = load()
 
@@ -627,8 +613,8 @@ def build() -> None:
     # Static assets
     shutil.copyfile(SRC / "style.css", OUT / "style.css")
     shutil.copyfile(SRC / "app.js", OUT / "app.js")
+    # Copies the fonts and their OFL.txt, which lives beside them in assets/.
     shutil.copytree(SRC / "fonts", OUT / "fonts")
-    write(OUT / "fonts" / "OFL.txt", OFL_NOTE)
     write(OUT / "icon.svg", ICON)
     write(OUT / ".nojekyll", "")
 
