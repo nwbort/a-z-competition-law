@@ -13,12 +13,15 @@ from a font CDN.
 
 1. Open **`terms.json`**.
 2. Add an object to the `terms` list.
-3. Run `python3 build.py`.
-4. Commit and push. That's it — the site rebuilds and deploys itself.
+3. Commit and push. That's it — GitHub Actions builds the site and deploys it.
 
-Everything else — the letter pages, the A–Z grid, the search index, the sitemap,
-the "next / previous word" links, the progress bar — is generated for you. Terms are
-sorted alphabetically automatically, so you can add them in any order.
+There is no generated output to commit: `docs/` is git-ignored and rebuilt by the
+workflow on every push. Run `python3 build.py` if you want to preview the site
+locally first, but you never have to.
+
+Everything else — the letter pages, the A–Z grid, the topic pages, the search index,
+the sitemap, the "next / previous word" links, the progress bar — is generated for
+you. Terms are sorted alphabetically automatically, so you can add them in any order.
 
 ### A word, in full
 
@@ -44,12 +47,23 @@ sorted alphabetically automatically, so you can add them in any order.
 | `aka` | no | The expansion, shown as *"Otherwise known as …"*. |
 | `emoji` | no | A little mascot for the word. |
 | `plainly` | no | The dashed **In plain English** box — the friendly, informal take. |
-| `tags` | no | Topic chips at the bottom of the page. |
+| `tags` | no | Topic chips at the bottom of the page, each linking to its topic page. |
 | `seeAlso` | no | Other terms, by exact name. Unknown names are skipped with a warning. |
 | `slug` | no | Override the URL. Defaults to a slug of `term`. |
 
 Opening a whole new letter needs no extra work: add a `B` word and the `B` tile on
 the home page turns from a dashed "soon" tile into a live, coloured one.
+
+### Topics
+
+Every distinct `tags` value gets its own page at `/topics/<tag>/`, listing every word
+filed under it, plus an index of them all at `/topics/`. Nothing to declare: tag a
+word and the topic appears — on the home page, in the **Topics** nav pill, and in the
+sitemap.
+
+Tags are matched on their slug, so `Consumer` and `consumer` land on the same page.
+The first spelling seen wins as the label, and an all-lowercase tag is shown
+capitalised (`enforcement` → **Enforcement**) while acronyms keep their case.
 
 ---
 
@@ -62,7 +76,8 @@ python3 build.py            # build into docs/
 python3 build.py --serve    # build, then serve on http://localhost:8000
 ```
 
-`docs/` is generated. Never edit it by hand; edit `terms.json` or `assets/` instead.
+`docs/` is generated and git-ignored. Never edit it by hand; edit `terms.json` or
+`assets/` instead. Deleting it is harmless — the next build recreates it.
 
 ---
 
@@ -75,7 +90,7 @@ assets/
   style.css         all styling
   app.js            search, theme toggle, "surprise me" — all optional
   fonts/            self-hosted Fredoka + Quicksand (OFL)
-docs/               generated output, served by GitHub Pages
+docs/               generated output, git-ignored — CI builds it and Pages serves it
 ```
 
 ## Deploying
@@ -91,10 +106,10 @@ set to **Deploy from a branch** with the folder `/ (root)` — that makes Jekyll
 **Settings → Pages → Build and deployment → Source: GitHub Actions**, then re-run the
 *Build and deploy* workflow.
 
-The committed `docs/` folder means you can also serve straight from the branch
-(*Settings → Pages → Deploy from a branch → `main` → `/docs`* — the folder matters)
-if you would rather not use Actions. Either way, run `python3 build.py` before
-committing.
+Because `docs/` is git-ignored, Actions is the only source that works: there is no
+generated output in the repository for a *Deploy from a branch* setting to serve. If
+you ever do want to serve from the branch instead, stop ignoring `docs/`, run
+`python3 build.py`, and commit the result.
 
 Set `site.baseUrl` in `terms.json` to the site's real address so the sitemap and
 canonical links point to the right place.

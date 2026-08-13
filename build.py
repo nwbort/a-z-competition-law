@@ -48,6 +48,15 @@ def slugify(text: str) -> str:
     return norm or "term"
 
 
+def topic_url(slug: str) -> str:
+    return f"/topics/{slug}/"
+
+
+def topic_label(name: str) -> str:
+    """'regulator' -> 'Regulator', leaving 'ACCC' and 'eSafety' as written."""
+    return name[0].upper() + name[1:] if name and name[0].islower() else name
+
+
 def paragraphs(value: object) -> list[str]:
     """Accept a string or a list of strings; always return a list."""
     if value is None:
@@ -74,7 +83,43 @@ def write(path: Path, content: str) -> None:
 # load + validate
 # --------------------------------------------------------------------------
 
-def load() -> tuple[dict, list[dict]]:
+def collect_topics(terms: list[dict]) -> list[dict]:
+    """Group terms by tag into topics, one per distinct tag.
+
+    Tags are matched on their slug, so 'Consumer' and 'consumer' are the same
+    topic; the first spelling seen (alphabetically by term) becomes the label.
+    """
+    topics: dict[str, dict] = {}
+
+    for t in terms:
+        for tag in t["tags"]:
+            slug = slugify(tag)
+            topic = topics.get(slug)
+            if topic is None:
+                topic = topics[slug] = {
+                    "name": topic_label(tag),
+                    "slug": slug,
+                    "url": topic_url(slug),
+                    "terms": [],
+                }
+            if not any(seen is t for seen in topic["terms"]):
+                topic["terms"].append(t)
+
+    ordered = sorted(topics.values(), key=lambda x: x["name"].lower())
+
+    for i, topic in enumerate(ordered):
+        topic["tile"] = PALETTE[i % len(PALETTE)]
+        topic["tilt"] = [-0.8, 0.6, -0.4, 0.9, -1.1, 0.35][i % 6]
+
+    # Give each term its resolved topics, so tag chips can link to the pages.
+    by_slug = {topic["slug"]: topic for topic in ordered}
+    for t in terms:
+        t["topicLinks"] = [by_slug[slugify(tag)] for tag in t["tags"]]
+
+    return ordered
+
+
+def load() -> tuple[dict, list[dict], list[dict]]:
     data = json.loads((ROOT / "terms.json").read_text(encoding="utf-8"))
     site = data.get("site", {})
     site.setdefault("title", "A–Z Competition Law Dictionary")
@@ -141,7 +186,9 @@ def load() -> tuple[dict, list[dict]]:
         t["tile"] = PALETTE[i % len(PALETTE)]
         t["tilt"] = [-0.9, 0.7, -0.5, 1.0, -1.2, 0.4][i % 6]
 
-    return site, terms
+    topics = collect_topics(terms)
+
+    return site, terms, topics
 
 
 # --------------------------------------------------------------------------
@@ -149,11 +196,13 @@ def load() -> tuple[dict, list[dict]]:
 # --------------------------------------------------------------------------
 
 def shell(*, site: dict, depth: int, title: str, description: str, body: str,
-          canonical: str = "", nav: str = "") -> str:
+          canonical: str = "", nav_current: str = "") -> str:
     up = "../" * depth
     base = site["baseUrl"]
     doodles = "".join(f'<span class="doodle">{d}</span>' for d in DOODLES)
     canon = f'\n  <link rel="canonical" href="{esc(base + canonical)}">' if base and canonical else ""
+    current = ' aria-current="page"' if nav_current == "topics" else ""
+    nav = f'<a class="pill" href="{up}topics/"{current}>🏷️ Topics</a>'
 
     return f"""<!doctype html>
 <html lang="{esc(site['lang'])}" data-root="{esc(up)}">
@@ -219,11 +268,22 @@ def term_card(t: dict, up: str) -> str:
 """
 
 
+def topic_card(topic: dict, up: str) -> str:
+    n = len(topic["terms"])
+    return f"""          <li>
+            <a class="topic" href="{up}{topic['url'].lstrip('/')}" style="--tile: var({topic['tile']}); --tilt: {topic['tilt']}deg;">
+              <span class="name">{esc(topic['name'])}</span>
+              <span class="count">{n} word{"s" if n != 1 else ""}</span>
+            </a>
+          </li>
+"""
+
+
 # --------------------------------------------------------------------------
 # pages
 # --------------------------------------------------------------------------
 
-def page_home(site: dict, terms: list[dict]) -> str:
+def page_home(site: dict, terms: list[dict], topics: list[dict]) -> str:
     by_letter: dict[str, list[dict]] = {}
     for t in terms:
         by_letter.setdefault(t["letter"], []).append(t)
@@ -248,6 +308,16 @@ def page_home(site: dict, terms: list[dict]) -> str:
 
     newest = "".join(term_card(t, "") for t in terms)
 
+    topic_panel = ""
+    if topics:
+        topic_panel = f"""
+        <section class="panel">
+          <h2 class="panel-title"><span class="emoji" aria-hidden="true">🏷️</span> Browse by topic</h2>
+          <ul class="topics">
+{"".join(topic_card(topic, "") for topic in topics)}          </ul>
+        </section>
+"""
+
     body = f"""      <section class="hero">
         <div class="ribbon">
           <h1>{esc(site['title'])}<span class="tag">{esc(site['tagline'])}</span></h1>
@@ -263,7 +333,7 @@ def page_home(site: dict, terms: list[dict]) -> str:
 {chr(10).join(tiles)}
           </ul>
         </section>
-
+{topic_panel}
         <section class="panel">
           <h2 class="panel-title"><span class="emoji" aria-hidden="true">📖</span> Every word so far</h2>
           <ul class="terms">
@@ -279,6 +349,89 @@ def page_home(site: dict, terms: list[dict]) -> str:
     return shell(
         site=site, depth=0, title=site["title"], description=site["description"],
         body=body, canonical="/",
+    )
+
+
+def page_topics(site: dict, topics: list[dict]) -> str:
+    if topics:
+        cards = "".join(topic_card(topic, "../") for topic in topics)
+        n = len(topics)
+        listing = f"""      <p class="hero-sub" style="margin-left:0;text-align:left">{n} topic{"s" if n != 1 else ""} so far — pick one to see every word filed under it.</p>
+
+      <section class="panel">
+        <ul class="topics">
+{cards}        </ul>
+      </section>
+"""
+        desc = "Browse the dictionary by topic: " + ", ".join(t["name"] for t in topics) + "."
+    else:
+        listing = """      <div class="card panel">
+        <p class="empty"><span class="big" aria-hidden="true">🏷️</span>
+        No topics yet — they appear as soon as a word is given some tags.</p>
+      </div>
+"""
+        desc = "Browse the dictionary by topic."
+
+    body = f"""      <section class="term-head">
+        <a class="eyebrow" href="../">← Home</a>
+        <h1>🏷️ Topics</h1>
+      </section>
+
+{listing}
+      <nav class="pager" aria-label="Topics">
+        <a href="../">← Home</a>
+      </nav>
+"""
+    return shell(
+        site=site, depth=1, title=f"Topics — {site['title']}",
+        description=plain(desc, 155), body=body, canonical="/topics/",
+        nav_current="topics",
+    )
+
+
+def page_topic(site: dict, topic: dict, topics: list[dict]) -> str:
+    i = topics.index(topic)
+    prev_t = topics[i - 1] if i > 0 else None
+    next_t = topics[i + 1] if i < len(topics) - 1 else None
+
+    items = topic["terms"]
+    cards = "".join(term_card(t, "../../") for t in items)
+    word = "word" if len(items) == 1 else "words"
+
+    pager = []
+    pager.append(
+        f'<a href="../{prev_t["slug"]}/">← {esc(prev_t["name"])}</a>'
+        if prev_t else '<a href="../">← All topics</a>'
+    )
+    if next_t:
+        pager.append(f'<a href="../{next_t["slug"]}/">{esc(next_t["name"])} →</a>')
+
+    body = f"""      <section class="term-head">
+        <a class="eyebrow" href="../">← All topics</a>
+        <h1>{esc(topic['name'])}</h1>
+      </section>
+
+      <p class="hero-sub" style="margin-left:0;text-align:left">{len(items)} {word} tagged “{esc(topic['name'])}”.</p>
+
+{search_block(placeholder='Search the whole dictionary…')}
+
+      <div data-browse>
+        <section class="panel">
+          <ul class="terms">
+{cards}          </ul>
+        </section>
+      </div>
+
+      <nav class="pager" aria-label="Topics">
+        {''.join(pager)}
+      </nav>
+"""
+    return shell(
+        site=site, depth=2,
+        title=f"{topic['name']} — {site['title']}",
+        description=f"Australian competition law words tagged “{topic['name']}”: "
+                    + ", ".join(t["term"] for t in items) + ".",
+        body=body, canonical=topic["url"], nav_current="topics",
     )
 
 
@@ -350,8 +503,11 @@ def page_term(site: dict, t: dict, siblings: list[dict]) -> str:
 """
 
     meta = []
-    if t["tags"]:
-        chips = "".join(f'<span class="tagchip">{esc(tag)}</span>' for tag in t["tags"])
+    if t["topicLinks"]:
+        chips = "".join(
+            f'<a class="tagchip" href="../../topics/{topic["slug"]}/">{esc(topic["name"])}</a>'
+            for topic in t["topicLinks"]
+        )
         meta.append(f'          <div class="meta-row"><span class="label">Topics</span>{chips}</div>')
     if t["seeAlsoLinks"]:
         chips = "".join(
@@ -428,22 +584,8 @@ ICON = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
 </svg>
 """
 
-OFL_NOTE = """The fonts in this folder are used under the SIL Open Font License 1.1.
-
-  Fredoka    — Copyright The Fredoka Project Authors
-               https://github.com/hafontia/Fredoka
-  Quicksand  — Copyright The Quicksand Project Authors
-               https://github.com/andrew-paglinawan/QuicksandFamily
-
-Full licence text: https://openfontlicense.org/
-
-They are served from this site rather than from a font CDN so that visiting
-the dictionary makes no third-party requests.
-"""
-
-
 def build() -> None:
-    site, terms = load()
+    site, terms, topics = load()
 
     if OUT.exists():
         shutil.rmtree(OUT)
@@ -455,7 +597,7 @@ def build() -> None:
     live = [l for l in LETTERS if by_letter.get(l)]
 
     # Pages
-    write(OUT / "index.html", page_home(site, terms))
+    write(OUT / "index.html", page_home(site, terms, topics))
     write(OUT / "404.html", page_404(site))
 
     for letter in live:
@@ -464,11 +606,15 @@ def build() -> None:
         for t in items:
             write(OUT / letter.lower() / t["slug"] / "index.html", page_term(site, t, items))
 
+    write(OUT / "topics" / "index.html", page_topics(site, topics))
+    for topic in topics:
+        write(OUT / "topics" / topic["slug"] / "index.html", page_topic(site, topic, topics))
+
     # Static assets
     shutil.copyfile(SRC / "style.css", OUT / "style.css")
     shutil.copyfile(SRC / "app.js", OUT / "app.js")
+    # Copies the fonts and their OFL.txt, which lives beside them in assets/.
     shutil.copytree(SRC / "fonts", OUT / "fonts")
-    write(OUT / "fonts" / "OFL.txt", OFL_NOTE)
     write(OUT / "icon.svg", ICON)
     write(OUT / ".nojekyll", "")
 
@@ -487,7 +633,8 @@ def build() -> None:
           + (f"Sitemap: {site['baseUrl']}/sitemap.xml\n" if site["baseUrl"] else ""))
 
     if site["baseUrl"]:
-        urls = ["/"] + [f"/{l.lower()}/" for l in live] + [t["url"] for t in terms]
+        urls = (["/"] + [f"/{l.lower()}/" for l in live] + [t["url"] for t in terms]
+                + ["/topics/"] + [topic["url"] for topic in topics])
         today = date.today().isoformat()
         entries = "".join(
             f"  <url><loc>{esc(site['baseUrl'] + u)}</loc><lastmod>{today}</lastmod></url>\n"
@@ -499,8 +646,10 @@ def build() -> None:
               f"{entries}</urlset>\n")
 
     pages = sum(1 for _ in OUT.rglob("*.html"))
-    print(f"✅ Built {len(terms)} words across {len(live)} letter(s) → {pages} pages in {OUT.relative_to(ROOT)}/")
+    print(f"✅ Built {len(terms)} words across {len(live)} letter(s) "
+          f"and {len(topics)} topic(s) → {pages} pages in {OUT.relative_to(ROOT)}/")
     print(f"   Letters live: {', '.join(live) or '(none yet)'}")
+    print(f"   Topics: {', '.join(t['name'] for t in topics) or '(none yet)'}")
 
 
 def serve() -> None:
