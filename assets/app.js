@@ -9,12 +9,27 @@
   var base = root.getAttribute('data-root') || '';
 
   /* ---- Surprise me ---------------------------------------------------- */
+  /* Letting an anchor resolve the link gives the absolute path the browser
+     would actually navigate to, so a term can be compared against the current
+     page whatever prefix data-root carries and however deep the page sits.
+     Directory URLs and their index.html spelling are the same page. */
+  var pathOf = function (href) {
+    var a = document.createElement('a');
+    a.href = href;
+    return a.pathname.replace(/index\.html$/, '');
+  };
+
   var dice = document.querySelector('[data-random]');
   if (dice && terms.length) {
     dice.hidden = false;
     dice.addEventListener('click', function (ev) {
       ev.preventDefault();
-      var pick = terms[Math.floor(Math.random() * terms.length)];
+      /* Never pick the page being read. If that leaves nothing — one word in
+         the dictionary, and you are on it — staying put is the only move. */
+      var here = pathOf(location.href);
+      var pool = terms.filter(function (t) { return pathOf(base + t.url) !== here; });
+      if (!pool.length) pool = terms;
+      var pick = pool[Math.floor(Math.random() * pool.length)];
       window.location.href = base + pick.url;
     });
   }

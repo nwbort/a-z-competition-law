@@ -61,7 +61,15 @@
 
 /* --- Reset-ish ---------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+/* scrollbar-gutter reserves the scrollbar's space on every page, so the short
+   ones do not sit a scrollbar wider than the home page and shift the layout
+   sideways as you navigate between them. The reservation is unconditional —
+   pages that do not scroll keep the gutter too, which is the point. */
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
+}
 
 body {
   margin: 0;

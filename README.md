@@ -114,6 +114,26 @@ you ever do want to serve from the branch instead, stop ignoring `docs/`, run
 Set `site.baseUrl` in `terms.json` to the site's real address so the sitemap and
 canonical links point to the right place.
 
+### Moving to a custom domain
+
+`baseUrl` is the only thing to change. Set it to the new address, e.g.
+`https://competitionlaw.au`, and the build follows:
+
+- **`CNAME`** is written into `docs/` automatically whenever `baseUrl` is not a
+  `github.io` address. It has to come from the build rather than the repository:
+  `docs/` is git-ignored and rebuilt from scratch each run, and the artifact
+  replaces the served site wholesale, so a `CNAME` the Pages UI commits to the
+  repo never reaches it.
+- **The 404 page** links absolutely and takes its prefix from `baseUrl`, so it
+  drops the `/a-z-competition-law` path once the site serves from a root domain.
+- **Canonical links, the sitemap and `robots.txt`** all read `baseUrl` already.
+
+On the DNS side, point the apex at GitHub's Pages addresses (or a `www` subdomain
+at `<user>.github.io`), then tick **Settings → Pages → Enforce HTTPS** once the
+certificate is issued. Leave **Settings → Pages → Custom domain** filled in as
+well: the build supplies the `CNAME`, but that field is what makes Pages request
+the certificate.
+
 ---
 
 ## Accessibility & privacy notes
