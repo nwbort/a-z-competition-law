@@ -327,8 +327,6 @@ def page_home(site: dict, terms: list[dict], topics: list[dict]) -> str:
     for t in terms:
         by_letter.setdefault(t["letter"], []).append(t)
 
-    live = [l for l in LETTERS if by_letter.get(l)]
-
     tiles = []
     for i, letter in enumerate(LETTERS):
         got = by_letter.get(letter, [])
@@ -341,8 +339,8 @@ def page_home(site: dict, terms: list[dict], topics: list[dict]) -> str:
             )
         else:
             tiles.append(
-                f'        <li><span class="letter soon" aria-label="{letter} — coming soon">'
-                f'{letter}<span class="count" aria-hidden="true">soon</span></span></li>'
+                f'        <li><a class="letter soon" href="{letter.lower()}/" aria-label="{letter} — coming soon">'
+                f'{letter}<span class="count" aria-hidden="true">soon</span></a></li>'
             )
 
     newest = "".join(term_card(t, "") for t in terms)
@@ -389,10 +387,7 @@ def page_home(site: dict, terms: list[dict], topics: list[dict]) -> str:
 def page_topics(site: dict, topics: list[dict]) -> str:
     if topics:
         cards = "".join(topic_card(topic, "../") for topic in topics)
-        n = len(topics)
-        listing = f"""      <p class="hero-sub" style="margin-left:0;text-align:left">{n} topic{"s" if n != 1 else ""} so far — pick one to see every word filed under it.</p>
-
-      <section class="panel">
+        listing = f"""      <section class="panel">
         <ul class="topics">
 {cards}        </ul>
       </section>
@@ -430,7 +425,6 @@ def page_topic(site: dict, topic: dict, topics: list[dict]) -> str:
 
     items = topic["terms"]
     cards = "".join(term_card(t, "../../") for t in items)
-    word = "word" if len(items) == 1 else "words"
 
     pager = []
     pager.append(
@@ -444,8 +438,6 @@ def page_topic(site: dict, topic: dict, topics: list[dict]) -> str:
         <a class="eyebrow" href="../">← All topics</a>
         <h1>{esc(topic['name'])}</h1>
       </section>
-
-      <p class="hero-sub" style="margin-left:0;text-align:left">{len(items)} {word} tagged “{esc(topic['name'])}”.</p>
 
 {search_block(placeholder='Search the whole dictionary…')}
 
@@ -469,13 +461,10 @@ def page_topic(site: dict, topic: dict, topics: list[dict]) -> str:
     )
 
 
-def page_letter(site: dict, letter: str, items: list[dict], live: list[str]) -> str:
-    idx = live.index(letter)
-    prev_l = live[idx - 1] if idx > 0 else None
-    next_l = live[idx + 1] if idx < len(live) - 1 else None
-
-    cards = "".join(term_card(t, "../") for t in items)
-    word = "word" if len(items) == 1 else "words"
+def page_letter(site: dict, letter: str, items: list[dict]) -> str:
+    idx = LETTERS.index(letter)
+    prev_l = LETTERS[idx - 1] if idx > 0 else None
+    next_l = LETTERS[idx + 1] if idx < len(LETTERS) - 1 else None
 
     pager = []
     pager.append(
@@ -484,14 +473,9 @@ def page_letter(site: dict, letter: str, items: list[dict], live: list[str]) -> 
     if next_l:
         pager.append(f'<a href="../{next_l.lower()}/">{next_l} →</a>')
 
-    body = f"""      <section class="term-head">
-        <a class="eyebrow" href="../">← All letters</a>
-        <h1>{letter}</h1>
-      </section>
-
-      <p class="hero-sub" style="margin-left:0;text-align:left">{len(items)} {word} under {letter}.</p>
-
-{search_block(placeholder='Search the whole dictionary…')}
+    if items:
+        cards = "".join(term_card(t, "../") for t in items)
+        listing = f"""{search_block(placeholder='Search the whole dictionary…')}
 
       <div data-browse>
         <section class="panel">
@@ -499,7 +483,23 @@ def page_letter(site: dict, letter: str, items: list[dict], live: list[str]) -> 
 {cards}          </ul>
         </section>
       </div>
+"""
+        desc = (f"Australian competition law words beginning with {letter}: "
+                + ", ".join(t["term"] for t in items) + ".")
+    else:
+        listing = f"""      <div class="card panel">
+        <p class="empty"><span class="big" aria-hidden="true">✏️</span>
+        No words filed under {letter} yet — check back soon.</p>
+      </div>
+"""
+        desc = f"Australian competition law words beginning with {letter} — coming soon."
 
+    body = f"""      <section class="term-head">
+        <a class="eyebrow" href="../">← All letters</a>
+        <h1>{letter}</h1>
+      </section>
+
+{listing}
       <nav class="pager" aria-label="Letters">
         {''.join(pager)}
       </nav>
@@ -507,8 +507,7 @@ def page_letter(site: dict, letter: str, items: list[dict], live: list[str]) -> 
     return shell(
         site=site, depth=1,
         title=f"{letter} — {site['title']}",
-        description=f"Australian competition law words beginning with {letter}: "
-                    + ", ".join(t["term"] for t in items) + ".",
+        description=desc,
         body=body, canonical=f"/{letter.lower()}/",
     )
 
@@ -635,9 +634,9 @@ def build() -> None:
     write(OUT / "index.html", page_home(site, terms, topics))
     write(OUT / "404.html", page_404(site))
 
-    for letter in live:
-        items = by_letter[letter]
-        write(OUT / letter.lower() / "index.html", page_letter(site, letter, items, live))
+    for letter in LETTERS:
+        items = by_letter.get(letter, [])
+        write(OUT / letter.lower() / "index.html", page_letter(site, letter, items))
         for t in items:
             write(OUT / letter.lower() / t["slug"] / "index.html", page_term(site, t, items))
 
@@ -676,7 +675,7 @@ def build() -> None:
           + (f"Sitemap: {site['baseUrl']}/sitemap.xml\n" if site["baseUrl"] else ""))
 
     if site["baseUrl"]:
-        urls = (["/"] + [f"/{l.lower()}/" for l in live] + [t["url"] for t in terms]
+        urls = (["/"] + [f"/{l.lower()}/" for l in LETTERS] + [t["url"] for t in terms]
                 + ["/topics/"] + [topic["url"] for topic in topics])
         today = date.today().isoformat()
         entries = "".join(
