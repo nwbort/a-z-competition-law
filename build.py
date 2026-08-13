@@ -200,8 +200,13 @@ def load() -> tuple[dict, list[dict], list[dict]]:
 # than a CSS pseudo-element because the notch needs the same outline as the rest
 # of the shape, and clip-path slices a CSS border clean off. Fill, stroke and
 # size come from the stylesheet; .tail-r is the same path mirrored.
-TAIL = ('<svg class="tail tail-{side}" viewBox="0 0 40 60" aria-hidden="true" '
-        'focusable="false"><path d="M40 0 40 60 0 47 12 30 0 13Z" '
+#
+# The width/height attributes are only a backstop: presentation attributes lose
+# to any stylesheet rule, so .tail's own sizing always wins in normal use. They
+# matter when the stylesheet does not apply at all, where an SVG carrying just a
+# viewBox is sized against its container and swells to fill the page.
+TAIL = ('<svg class="tail tail-{side}" viewBox="0 0 40 60" width="40" height="60" '
+        'aria-hidden="true" focusable="false"><path d="M40 0 40 60 0 47 12 30 0 13Z" '
         'vector-effect="non-scaling-stroke"/></svg>')
 
 
@@ -647,6 +652,14 @@ def build() -> None:
     shutil.copytree(SRC / "fonts", OUT / "fonts")
     write(OUT / "icon.svg", ICON)
     write(OUT / ".nojekyll", "")
+
+    # A custom domain has to carry its CNAME inside the artifact. docs/ is wiped
+    # and rebuilt every run, and the artifact wholly replaces what Pages serves,
+    # so a CNAME the Pages UI commits to the repo never reaches the live site.
+    # Deriving it from baseUrl keeps the move to a domain a one-line edit.
+    host = urlsplit(site["baseUrl"]).hostname or ""
+    if host and not host.endswith(".github.io"):
+        write(OUT / "CNAME", host + "\n")
 
     # Search index, inlined as a script so it also works from file://
     index = [
