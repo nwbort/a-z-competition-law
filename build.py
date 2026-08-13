@@ -225,7 +225,7 @@ def shell(*, site: dict, depth: int, title: str, description: str, body: str,
 
   <div class="shell">
     <header class="site-head">
-      <a class="brand" href="{up or './'}"><span aria-hidden="true">⚖️</span> A–Z Competition Law</a>
+      <a class="brand" href="{up or './'}"><span aria-hidden="true">🏠</span> Home</a>
       <nav class="head-nav" aria-label="Site">
         {nav}
         <button class="pill" type="button" data-random hidden>🎲 Surprise me</button>
@@ -340,11 +340,6 @@ def page_home(site: dict, terms: list[dict], topics: list[dict]) -> str:
 {newest}          </ul>
         </section>
       </div>
-
-      <aside class="callout">
-        <span class="emoji" aria-hidden="true">🌱</span>
-        <p>New letters land here as they are written. Nothing to subscribe to, nothing tracking you — just pop back whenever you like.</p>
-      </aside>
 """
     return shell(
         site=site, depth=0, title=site["title"], description=site["description"],

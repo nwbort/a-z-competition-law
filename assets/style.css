@@ -630,24 +630,6 @@ a.tagchip:hover { transform: rotate(-2deg) scale(1.05); background: var(--ribbon
   padding: 0.1em 0.4em;
 }
 
-/* --- Callout ------------------------------------------------------------ */
-.callout {
-  display: flex;
-  gap: 0.8rem;
-  align-items: flex-start;
-  margin: 2rem 0;
-  padding: 1rem 1.2rem;
-  background: rgba(255, 251, 244, 0.16);
-  border: 2px dashed rgba(255, 250, 242, 0.55);
-  border-radius: var(--wobble-1);
-  color: #fff6ea;
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-.callout .emoji { font-size: 1.3rem; flex: none; }
-.callout p { margin: 0; }
-.callout a { color: #fff; }
-
 /* --- Empty state -------------------------------------------------------- */
 .empty {
   text-align: center;
