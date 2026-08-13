@@ -207,39 +207,48 @@ main { padding-bottom: 3.5rem; }
 .pill[aria-current='page'] { background: var(--ribbon); color: var(--outline); border-color: var(--outline); }
 
 /* --- Ribbon banner ------------------------------------------------------ */
-.hero { text-align: center; padding: 1.6rem 0 0.5rem; }
+/* The tilt lives on .hero, not .ribbon: a transform on the banner itself would
+   make it a stacking context, and the z-index:-1 tails would then paint on top
+   of it instead of tucking behind. */
+.hero {
+  text-align: center;
+  padding: 1.6rem 0 0.5rem;
+  transform: rotate(-1.2deg);
+}
 
 .ribbon {
+  /* Tails are 40:60 in the viewBox, so each one sticks out (2/3 of its height)
+     minus the 10px it tucks under the banner. Keeping the banner that much
+     narrower than its container stops them running off the page. */
+  --tail-h: clamp(34px, 6vw, 64px);
   position: relative;
   display: inline-block;
-  max-width: 100%;
+  max-width: calc(100% - 2 * (var(--tail-h) * 0.667 - 10px));
   background: var(--ribbon);
   border: 3px solid var(--outline);
   border-radius: var(--wobble-3);
   padding: 1.1rem clamp(1.4rem, 5vw, 3.2rem);
   box-shadow: 6px 7px 0 -1px var(--ribbon-deep), 10px 12px 0 -2px rgba(42, 35, 32, 0.28);
-  transform: rotate(-1.2deg);
 }
-.ribbon::before, .ribbon::after {
-  content: '';
+
+/* Swallowtails (markup in build.py). Height drives the size and the viewBox
+   supplies the width, so the shape never stretches; overflow stays visible so
+   the outer half of the stroke is not cropped by the SVG viewport. Each tail
+   slides its own width sideways and tucks 10px under the banner. */
+.tail {
   position: absolute;
-  top: 18%;
-  width: clamp(18px, 4vw, 40px);
-  height: 64%;
-  background: var(--ribbon);
-  border: 3px solid var(--outline);
+  top: 50%;
+  height: var(--tail-h);
+  width: auto;
+  overflow: visible;
+  fill: var(--ribbon-deep);
+  stroke: var(--outline);
+  stroke-width: 3;
+  stroke-linejoin: round;
   z-index: -1;
 }
-.ribbon::before {
-  left: clamp(-34px, -3.6vw, -16px);
-  clip-path: polygon(100% 0, 100% 100%, 0 78%, 30% 50%, 0 22%);
-  border-radius: 8px 0 0 8px;
-}
-.ribbon::after {
-  right: clamp(-34px, -3.6vw, -16px);
-  clip-path: polygon(0 0, 0 100%, 100% 78%, 70% 50%, 100% 22%);
-  border-radius: 0 8px 8px 0;
-}
+.tail-l { left: 10px; transform: translate(-100%, -50%); }
+.tail-r { right: 10px; transform: translate(100%, -50%) scaleX(-1); }
 
 .ribbon h1 {
   margin: 0;
@@ -629,24 +638,6 @@ a.tagchip:hover { transform: rotate(-2deg) scale(1.05); background: var(--ribbon
   border-radius: 6px;
   padding: 0.1em 0.4em;
 }
-
-/* --- Callout ------------------------------------------------------------ */
-.callout {
-  display: flex;
-  gap: 0.8rem;
-  align-items: flex-start;
-  margin: 2rem 0;
-  padding: 1rem 1.2rem;
-  background: rgba(255, 251, 244, 0.16);
-  border: 2px dashed rgba(255, 250, 242, 0.55);
-  border-radius: var(--wobble-1);
-  color: #fff6ea;
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-.callout .emoji { font-size: 1.3rem; flex: none; }
-.callout p { margin: 0; }
-.callout a { color: #fff; }
 
 /* --- Empty state -------------------------------------------------------- */
 .empty {

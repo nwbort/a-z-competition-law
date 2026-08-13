@@ -195,6 +195,23 @@ def load() -> tuple[dict, list[dict], list[dict]]:
 # page shell
 # --------------------------------------------------------------------------
 
+# The swallowtail that pokes out either side of the banner. It is an SVG rather
+# than a CSS pseudo-element because the notch needs the same outline as the rest
+# of the shape, and clip-path slices a CSS border clean off. Fill, stroke and
+# size come from the stylesheet; .tail-r is the same path mirrored.
+TAIL = ('<svg class="tail tail-{side}" viewBox="0 0 40 60" aria-hidden="true" '
+        'focusable="false"><path d="M40 0 40 60 0 47 12 30 0 13Z" '
+        'vector-effect="non-scaling-stroke"/></svg>')
+
+
+def ribbon(heading: str) -> str:
+    """The tilted banner used at the top of the home and 404 pages."""
+    return f"""<div class="ribbon">
+          {TAIL.format(side="l")}{TAIL.format(side="r")}
+          <h1>{heading}</h1>
+        </div>"""
+
+
 def shell(*, site: dict, depth: int, title: str, description: str, body: str,
           canonical: str = "", nav_current: str = "") -> str:
     up = "../" * depth
@@ -225,7 +242,7 @@ def shell(*, site: dict, depth: int, title: str, description: str, body: str,
 
   <div class="shell">
     <header class="site-head">
-      <a class="brand" href="{up or './'}"><span aria-hidden="true">⚖️</span> A–Z Competition Law</a>
+      <a class="brand" href="{up or './'}"><span aria-hidden="true">🏠</span> Home</a>
       <nav class="head-nav" aria-label="Site">
         {nav}
         <button class="pill" type="button" data-random hidden>🎲 Surprise me</button>
@@ -318,10 +335,10 @@ def page_home(site: dict, terms: list[dict], topics: list[dict]) -> str:
         </section>
 """
 
+    heading = esc(site["title"]) + f'<span class="tag">{esc(site["tagline"])}</span>'
+
     body = f"""      <section class="hero">
-        <div class="ribbon">
-          <h1>{esc(site['title'])}<span class="tag">{esc(site['tagline'])}</span></h1>
-        </div>
+        {ribbon(heading)}
       </section>
 
 {search_block(placeholder='Search a word… (press / to jump here)')}
@@ -340,11 +357,6 @@ def page_home(site: dict, terms: list[dict], topics: list[dict]) -> str:
 {newest}          </ul>
         </section>
       </div>
-
-      <aside class="callout">
-        <span class="emoji" aria-hidden="true">🌱</span>
-        <p>New letters land here as they are written. Nothing to subscribe to, nothing tracking you — just pop back whenever you like.</p>
-      </aside>
 """
     return shell(
         site=site, depth=0, title=site["title"], description=site["description"],
@@ -553,8 +565,8 @@ def page_term(site: dict, t: dict, siblings: list[dict]) -> str:
 
 
 def page_404(site: dict) -> str:
-    body = """      <section class="hero">
-        <div class="ribbon"><h1>404<span class="tag">This page went to market and never came back</span></h1></div>
+    body = f"""      <section class="hero">
+        {ribbon('404<span class="tag">This page went to market and never came back</span>')}
       </section>
 
       <div class="card panel">
