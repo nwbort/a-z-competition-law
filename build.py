@@ -19,6 +19,7 @@ import sys
 import unicodedata
 from datetime import date
 from pathlib import Path
+from urllib.parse import urlsplit
 
 ROOT = Path(__file__).parent.resolve()
 SRC = ROOT / "assets"
@@ -212,9 +213,25 @@ def ribbon(heading: str) -> str:
         </div>"""
 
 
+def site_root(site: dict) -> str:
+    """The absolute path the site is served from, e.g. "/a-z-competition-law/".
+
+    Every other page knows how deep it sits and links relatively, but the 404
+    page is served for *any* missing URL at any depth, so relative links there
+    resolve against whatever path the visitor happened to hit. Only absolute
+    ones survive that, and on a project site they need the repo path prefix —
+    a bare "/" lands on the user's github.io root instead.
+    """
+    path = urlsplit(site["baseUrl"]).path.strip("/")
+    return f"/{path}/" if path else "/"
+
+
 def shell(*, site: dict, depth: int, title: str, description: str, body: str,
-          canonical: str = "", nav_current: str = "") -> str:
-    up = "../" * depth
+          canonical: str = "", nav_current: str = "", root: str = "") -> str:
+    # `root` overrides the relative prefix for pages that cannot rely on their
+    # own URL (see site_root). It feeds data-root too, so app.js builds its
+    # search-result links off the same base.
+    up = root or "../" * depth
     base = site["baseUrl"]
     doodles = "".join(f'<span class="doodle">{d}</span>' for d in DOODLES)
     canon = f'\n  <link rel="canonical" href="{esc(base + canonical)}">' if base and canonical else ""
@@ -565,6 +582,7 @@ def page_term(site: dict, t: dict, siblings: list[dict]) -> str:
 
 
 def page_404(site: dict) -> str:
+    root = site_root(site)
     body = f"""      <section class="hero">
         {ribbon('404<span class="tag">This page went to market and never came back</span>')}
       </section>
@@ -574,10 +592,10 @@ def page_404(site: dict) -> str:
         We could not find that one. It might be a letter we have not reached yet.</p>
       </div>
 
-      <nav class="pager"><a href="/">← Back to A</a></nav>
+      <nav class="pager"><a href="{root}">← Back to the dictionary</a></nav>
 """
     return shell(site=site, depth=0, title=f"Not found — {site['title']}",
-                 description="Page not found.", body=body)
+                 description="Page not found.", body=body, root=root)
 
 
 # --------------------------------------------------------------------------
