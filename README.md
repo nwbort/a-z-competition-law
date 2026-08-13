@@ -16,9 +16,9 @@ from a font CDN.
 3. Run `python3 build.py`.
 4. Commit and push. That's it — the site rebuilds and deploys itself.
 
-Everything else — the letter pages, the A–Z grid, the search index, the sitemap,
-the "next / previous word" links, the progress bar — is generated for you. Terms are
-sorted alphabetically automatically, so you can add them in any order.
+Everything else — the letter pages, the A–Z grid, the topic pages, the search index,
+the sitemap, the "next / previous word" links, the progress bar — is generated for
+you. Terms are sorted alphabetically automatically, so you can add them in any order.
 
 ### A word, in full
 
@@ -44,12 +44,23 @@ sorted alphabetically automatically, so you can add them in any order.
 | `aka` | no | The expansion, shown as *"Otherwise known as …"*. |
 | `emoji` | no | A little mascot for the word. |
 | `plainly` | no | The dashed **In plain English** box — the friendly, informal take. |
-| `tags` | no | Topic chips at the bottom of the page. |
+| `tags` | no | Topic chips at the bottom of the page, each linking to its topic page. |
 | `seeAlso` | no | Other terms, by exact name. Unknown names are skipped with a warning. |
 | `slug` | no | Override the URL. Defaults to a slug of `term`. |
 
 Opening a whole new letter needs no extra work: add a `B` word and the `B` tile on
 the home page turns from a dashed "soon" tile into a live, coloured one.
+
+### Topics
+
+Every distinct `tags` value gets its own page at `/topics/<tag>/`, listing every word
+filed under it, plus an index of them all at `/topics/`. Nothing to declare: tag a
+word and the topic appears — on the home page, in the **Topics** nav pill, and in the
+sitemap.
+
+Tags are matched on their slug, so `Consumer` and `consumer` land on the same page.
+The first spelling seen wins as the label, and an all-lowercase tag is shown
+capitalised (`enforcement` → **Enforcement**) while acronyms keep their case.
 
 ---
 

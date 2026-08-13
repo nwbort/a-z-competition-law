@@ -461,6 +461,56 @@ main { padding-bottom: 3.5rem; }
   font-weight: 500;
 }
 
+/* --- Topic tiles -------------------------------------------------------- */
+.topics {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.topic {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0.95rem 1.1rem;
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--paper);
+  border: 3px solid var(--outline);
+  border-radius: 18px;
+  box-shadow: var(--card-shadow);
+  transform: rotate(var(--tilt, -0.6deg));
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.topic::before {
+  content: '';
+  display: block;
+  width: 34px;
+  height: 8px;
+  margin-bottom: 0.5rem;
+  border-radius: 999px;
+  background: var(--tile, var(--accent-a));
+  border: 2px solid var(--outline);
+}
+.topic:hover, .topic:focus-visible {
+  transform: rotate(0deg) translateY(-5px);
+  box-shadow: 0 14px 0 -3px rgba(42, 35, 32, 0.18), 0 24px 36px -18px rgba(42, 35, 32, 0.6);
+}
+.topic .name {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.topic .count {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
 /* --- Term page ---------------------------------------------------------- */
 .term-head { text-align: left; padding: 1.4rem 0 0.2rem; }
 .term-head .eyebrow {
@@ -616,6 +666,7 @@ a.tagchip:hover { transform: rotate(-2deg) scale(1.05); background: var(--ribbon
     transition-duration: 0.001ms !important;
   }
   .term-card { transform: none; }
+  .topic { transform: none; }
   .ribbon { transform: none; }
 }
 
