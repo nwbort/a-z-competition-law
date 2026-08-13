@@ -28,7 +28,12 @@ jobs:
       - name: Build the dictionary
         run: python3 build.py
 
+      # enablement: turn Pages on (and switch its source to Actions) from here,
+      # so the first push to a fresh repo publishes the site rather than failing
+      # — or worse, falling back to Jekyll serving README.md from the repo root.
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:

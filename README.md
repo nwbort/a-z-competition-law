@@ -84,11 +84,17 @@ docs/               generated output, served by GitHub Pages
 to the default branch, so editing `terms.json` directly in the GitHub web UI is
 enough to publish a new word.
 
-To turn it on once: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+The workflow enables Pages itself and points it at Actions, so there is normally
+nothing to click. If the site shows this README instead of the dictionary, Pages is
+set to **Deploy from a branch** with the folder `/ (root)` — that makes Jekyll render
+`README.md` as the home page and never looks inside `docs/`. Fix it at
+**Settings → Pages → Build and deployment → Source: GitHub Actions**, then re-run the
+*Build and deploy* workflow.
 
 The committed `docs/` folder means you can also serve straight from the branch
-(*Settings → Pages → Deploy from a branch → `/docs`*) if you would rather not use
-Actions. Either way, run `python3 build.py` before committing.
+(*Settings → Pages → Deploy from a branch → `main` → `/docs`* — the folder matters)
+if you would rather not use Actions. Either way, run `python3 build.py` before
+committing.
 
 Set `site.baseUrl` in `terms.json` to the site's real address so the sitemap and
 canonical links point to the right place.
