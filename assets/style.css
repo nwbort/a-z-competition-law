@@ -470,6 +470,20 @@ main { padding-bottom: 3.5rem; }
   font-weight: 500;
 }
 
+.term-card.ghost {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: var(--ghost-bg);
+  border-style: dashed;
+  border-color: var(--ghost-line);
+  box-shadow: none;
+}
+.term-card.ghost:hover { transform: rotate(var(--tilt, -0.7deg)); }
+.term-card.ghost::before { background: transparent; border-color: var(--ghost-line); }
+.term-card.ghost h3, .term-card.ghost p { color: var(--ghost-ink); }
+.term-card.ghost p { margin-top: 0.15rem; }
+
 /* --- Topic tiles -------------------------------------------------------- */
 .topics {
   display: grid;
@@ -647,6 +661,12 @@ a.tagchip:hover { transform: rotate(-2deg) scale(1.05); background: var(--ribbon
   font-weight: 600;
 }
 .empty .big { display: block; font-size: 3rem; margin-bottom: 0.4rem; }
+
+.empty-note {
+  margin: 0 0 1.1rem;
+  color: var(--ink);
+  font-weight: 600;
+}
 
 /* --- Motion & print ----------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
