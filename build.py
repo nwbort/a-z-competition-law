@@ -11,6 +11,7 @@ and nothing in the output phones home.
 
 from __future__ import annotations
 
+import hashlib
 import html
 import json
 import re
@@ -31,6 +32,17 @@ LETTERS = [chr(c) for c in range(ord("A"), ord("Z") + 1)]
 PALETTE = ["--accent-a", "--accent-b", "--accent-c", "--accent-d", "--accent-e", "--accent-f"]
 
 DOODLES = ["⚖️", "🔍", "📚", "🦘", "✨", "📎"]
+
+# Card tilt angles (degrees). Picked by hashing a stable key rather than by
+# list position, so neighbouring cards in a grid don't fall into a repeating
+# column pattern — a fixed index-based cycle lines up with the grid's column
+# count and makes e.g. every card in column 1 share the same couple of angles.
+TILTS = [-1.3, -0.9, -0.6, -0.2, 0.3, 0.6, 0.9, 1.2]
+
+
+def stable_tilt(key: str) -> float:
+    digest = hashlib.md5(key.encode("utf-8")).hexdigest()
+    return TILTS[int(digest, 16) % len(TILTS)]
 
 # --------------------------------------------------------------------------
 # helpers
@@ -110,7 +122,7 @@ def collect_topics(terms: list[dict]) -> list[dict]:
 
     for i, topic in enumerate(ordered):
         topic["tile"] = PALETTE[i % len(PALETTE)]
-        topic["tilt"] = [-0.8, 0.6, -0.4, 0.9, -1.1, 0.35][i % 6]
+        topic["tilt"] = stable_tilt(topic["slug"])
 
     # Give each term its resolved topics, so tag chips can link to the pages.
     by_slug = {topic["slug"]: topic for topic in ordered}
@@ -185,7 +197,7 @@ def load() -> tuple[dict, list[dict], list[dict]]:
     # Give each term a stable colour and a stable little tilt.
     for i, t in enumerate(terms):
         t["tile"] = PALETTE[i % len(PALETTE)]
-        t["tilt"] = [-0.9, 0.7, -0.5, 1.0, -1.2, 0.4][i % 6]
+        t["tilt"] = stable_tilt(t["url"])
 
     topics = collect_topics(terms)
 
@@ -307,13 +319,12 @@ def term_card(t: dict, up: str) -> str:
 """
 
 
-GHOST_TILTS = [-0.9, 0.7, -0.5, 1.0, -1.2, 0.4]
 GHOST_COUNT = 3
 
 
-def ghost_card(i: int) -> str:
+def ghost_card(letter: str, i: int) -> str:
     """A dashed, unclickable stand-in for a term card on a letter with no words yet."""
-    tilt = GHOST_TILTS[i % len(GHOST_TILTS)]
+    tilt = stable_tilt(f"{letter}-ghost-{i}")
     return f"""          <li>
             <div class="term-card ghost" style="--tilt: {tilt}deg;">
               <h3><span aria-hidden="true">?</span> Coming soon</h3>
@@ -503,7 +514,7 @@ def page_letter(site: dict, letter: str, items: list[dict]) -> str:
         desc = (f"Australian competition law words beginning with {letter}: "
                 + ", ".join(t["term"] for t in items) + ".")
     else:
-        ghosts = "".join(ghost_card(i) for i in range(GHOST_COUNT))
+        ghosts = "".join(ghost_card(letter, i) for i in range(GHOST_COUNT))
         listing = f"""{search_block(placeholder='Search the whole dictionary…')}
 
       <div data-browse>
