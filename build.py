@@ -308,7 +308,7 @@ def term_card(t: dict, up: str) -> str:
 
 
 GHOST_TILTS = [-0.9, 0.7, -0.5, 1.0, -1.2, 0.4]
-GHOST_COUNT = 6
+GHOST_COUNT = 3
 
 
 def ghost_card(i: int) -> str:
@@ -508,7 +508,6 @@ def page_letter(site: dict, letter: str, items: list[dict]) -> str:
 
       <div data-browse>
         <section class="panel">
-          <p class="empty-note"><span aria-hidden="true">✏️</span> No words filed under {letter} yet — check back soon.</p>
           <ul class="terms" aria-hidden="true">
 {ghosts}          </ul>
         </section>
