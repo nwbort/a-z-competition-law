@@ -471,9 +471,6 @@ main { padding-bottom: 3.5rem; }
 }
 
 .term-card.ghost {
-  align-items: center;
-  justify-content: center;
-  text-align: center;
   min-height: 11rem;
   background: var(--ghost-bg);
   border-style: dashed;
@@ -482,8 +479,17 @@ main { padding-bottom: 3.5rem; }
 }
 .term-card.ghost:hover { transform: rotate(var(--tilt, -0.7deg)); }
 .term-card.ghost::before { background: transparent; border-color: var(--ghost-line); }
-.term-card.ghost h3, .term-card.ghost p { color: var(--ghost-ink); }
-.term-card.ghost p { margin-top: 0.15rem; }
+.term-card.ghost h3 { color: var(--ghost-ink); }
+
+.ghost-lines { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.55rem; }
+.ghost-lines span {
+  display: block;
+  height: 0.6em;
+  border: 2px dashed var(--ghost-line);
+  border-radius: 999px;
+}
+.ghost-lines span:nth-child(1) { width: 90%; }
+.ghost-lines span:nth-child(2) { width: 62%; }
 
 /* --- Topic tiles -------------------------------------------------------- */
 .topics {

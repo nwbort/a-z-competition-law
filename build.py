@@ -316,8 +316,8 @@ def ghost_card(i: int) -> str:
     tilt = GHOST_TILTS[i % len(GHOST_TILTS)]
     return f"""          <li>
             <div class="term-card ghost" style="--tilt: {tilt}deg;">
-              <h3>?</h3>
-              <p>Coming soon</p>
+              <h3><span aria-hidden="true">❔</span> Coming soon</h3>
+              <p class="ghost-lines"><span></span><span></span></p>
             </div>
           </li>
 """
