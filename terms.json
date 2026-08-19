@@ -1,5 +1,5 @@
 {
-  "_readme": "This is the whole dictionary. Add a word by adding an object to \"terms\" and running: python3 build.py. Fields: term (required), aka, definition (string or list of paragraphs), plainly, tags, seeAlso, emoji.",
+  "_readme": "This is the whole dictionary. Add a word by adding an object to \"terms\" and running: python3 build.py. Fields: term (required), aka, definition (string or list of paragraphs), plainly, tags, seeAlso, emoji. \"posts\" maps a letter to the LinkedIn post announcing it, shown as a link on that letter's page.",
 
   "site": {
     "title": "A–Z Competition Law Dictionary",
@@ -7,6 +7,10 @@
     "description": "A cheerful, plain-English dictionary of Australian competition law terms, published one letter at a time from A to Z.",
     "baseUrl": "https://nwbort.github.io/a-z-competition-law",
     "lang": "en-AU"
+  },
+
+  "posts": {
+    "A": "https://www.linkedin.com/posts/meigong1_a-z-competition-law-directionary-a-ugcPost-7493430376644890624-YPMG"
   },
 
   "terms": [
