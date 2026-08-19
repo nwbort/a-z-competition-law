@@ -132,7 +132,7 @@ def collect_topics(terms: list[dict]) -> list[dict]:
     return ordered
 
 
-def load() -> tuple[dict, list[dict], list[dict]]:
+def load() -> tuple[dict, list[dict], list[dict], dict[str, str]]:
     data = json.loads((ROOT / "terms.json").read_text(encoding="utf-8"))
     site = data.get("site", {})
     site.setdefault("title", "A–Z Competition Law Dictionary")
@@ -201,7 +201,14 @@ def load() -> tuple[dict, list[dict], list[dict]]:
 
     topics = collect_topics(terms)
 
-    return site, terms, topics
+    posts: dict[str, str] = {}
+    for letter, url in data.get("posts", {}).items():
+        letter = str(letter).strip().upper()
+        if letter not in LETTERS:
+            raise SystemExit(f"'posts' key {letter!r} is not a single letter A-Z")
+        posts[letter] = str(url).strip()
+
+    return site, terms, topics, posts
 
 
 # --------------------------------------------------------------------------
@@ -488,7 +495,7 @@ def page_topic(site: dict, topic: dict, topics: list[dict]) -> str:
     )
 
 
-def page_letter(site: dict, letter: str, items: list[dict]) -> str:
+def page_letter(site: dict, letter: str, items: list[dict], post_url: str = "") -> str:
     idx = LETTERS.index(letter)
     prev_l = LETTERS[idx - 1] if idx > 0 else None
     next_l = LETTERS[idx + 1] if idx < len(LETTERS) - 1 else None
@@ -526,9 +533,15 @@ def page_letter(site: dict, letter: str, items: list[dict]) -> str:
 """
         desc = f"Australian competition law words beginning with {letter} — coming soon."
 
+    post_link = (
+        f'\n        <a class="pill post-link" href="{esc(post_url)}" target="_blank" '
+        f'rel="noopener noreferrer">📣 See the LinkedIn post</a>'
+        if post_url else ""
+    )
+
     body = f"""      <section class="term-head">
         <a class="eyebrow" href="../">← All letters</a>
-        <h1>{letter}</h1>
+        <h1>{letter}</h1>{post_link}
       </section>
 
 {listing}
@@ -544,7 +557,7 @@ def page_letter(site: dict, letter: str, items: list[dict]) -> str:
     )
 
 
-def page_term(site: dict, t: dict, siblings: list[dict]) -> str:
+def page_term(site: dict, t: dict, siblings: list[dict], post_url: str = "") -> str:
     i = siblings.index(t)
     prev_t = siblings[i - 1] if i > 0 else None
     next_t = siblings[i + 1] if i < len(siblings) - 1 else None
@@ -591,10 +604,16 @@ def page_term(site: dict, t: dict, siblings: list[dict]) -> str:
 
     emoji = f'<span aria-hidden="true">{esc(t["emoji"])}</span> ' if t["emoji"] else ""
 
+    post_link = (
+        f'\n          <a class="pill post-link" href="{esc(post_url)}" target="_blank" '
+        f'rel="noopener noreferrer">📣 See the LinkedIn post</a>'
+        if post_url else ""
+    )
+
     body = f"""      <article>
         <header class="term-head">
           <a class="eyebrow" href="../">← {t['letter']}</a>
-          <h1>{emoji}{esc(t['term'])}</h1>
+          <h1>{emoji}{esc(t['term'])}</h1>{post_link}
         </header>
 
         <div class="card definition panel">
@@ -651,7 +670,7 @@ ICON = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
 """
 
 def build() -> None:
-    site, terms, topics = load()
+    site, terms, topics, posts = load()
 
     if OUT.exists():
         shutil.rmtree(OUT)
@@ -668,9 +687,9 @@ def build() -> None:
 
     for letter in LETTERS:
         items = by_letter.get(letter, [])
-        write(OUT / letter.lower() / "index.html", page_letter(site, letter, items))
+        write(OUT / letter.lower() / "index.html", page_letter(site, letter, items, posts.get(letter, "")))
         for t in items:
-            write(OUT / letter.lower() / t["slug"] / "index.html", page_term(site, t, items))
+            write(OUT / letter.lower() / t["slug"] / "index.html", page_term(site, t, items, posts.get(letter, "")))
 
     write(OUT / "topics" / "index.html", page_topics(site, topics))
     for topic in topics:

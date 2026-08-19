@@ -554,6 +554,10 @@ main { padding-bottom: 3.5rem; }
   padding: 0.25em 0.85em;
   text-decoration: none;
 }
+.term-head .post-link {
+  display: inline-block;
+  margin-top: 1.4rem;
+}
 .term-head h1 {
   margin: 0.7rem 0 0;
   font-size: clamp(2.4rem, 1.4rem + 5vw, 4.4rem);
