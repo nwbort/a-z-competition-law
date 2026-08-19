@@ -557,7 +557,7 @@ def page_letter(site: dict, letter: str, items: list[dict], post_url: str = "") 
     )
 
 
-def page_term(site: dict, t: dict, siblings: list[dict]) -> str:
+def page_term(site: dict, t: dict, siblings: list[dict], post_url: str = "") -> str:
     i = siblings.index(t)
     prev_t = siblings[i - 1] if i > 0 else None
     next_t = siblings[i + 1] if i < len(siblings) - 1 else None
@@ -604,10 +604,16 @@ def page_term(site: dict, t: dict, siblings: list[dict]) -> str:
 
     emoji = f'<span aria-hidden="true">{esc(t["emoji"])}</span> ' if t["emoji"] else ""
 
+    post_link = (
+        f'\n          <a class="pill post-link" href="{esc(post_url)}" target="_blank" '
+        f'rel="noopener noreferrer">📣 See the LinkedIn post</a>'
+        if post_url else ""
+    )
+
     body = f"""      <article>
         <header class="term-head">
           <a class="eyebrow" href="../">← {t['letter']}</a>
-          <h1>{emoji}{esc(t['term'])}</h1>
+          <h1>{emoji}{esc(t['term'])}</h1>{post_link}
         </header>
 
         <div class="card definition panel">
@@ -683,7 +689,7 @@ def build() -> None:
         items = by_letter.get(letter, [])
         write(OUT / letter.lower() / "index.html", page_letter(site, letter, items, posts.get(letter, "")))
         for t in items:
-            write(OUT / letter.lower() / t["slug"] / "index.html", page_term(site, t, items))
+            write(OUT / letter.lower() / t["slug"] / "index.html", page_term(site, t, items, posts.get(letter, "")))
 
     write(OUT / "topics" / "index.html", page_topics(site, topics))
     for topic in topics:
