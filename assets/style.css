@@ -477,7 +477,6 @@ main { padding-bottom: 3.5rem; }
   border-color: var(--ghost-line);
   box-shadow: none;
 }
-.term-card.ghost:hover { transform: rotate(var(--tilt, -0.7deg)); }
 .term-card.ghost::before { background: transparent; border-color: var(--ghost-line); }
 .term-card.ghost h3 { color: var(--ghost-ink); }
 
@@ -553,7 +552,9 @@ main { padding-bottom: 3.5rem; }
   border-radius: 999px;
   padding: 0.25em 0.85em;
   text-decoration: none;
+  transition: transform 0.16s ease, background 0.16s ease;
 }
+.term-head .eyebrow:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.32); }
 .term-head .post-link {
   display: inline-block;
   margin-top: 1.4rem;
