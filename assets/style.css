@@ -555,8 +555,10 @@ main { padding-bottom: 3.5rem; }
   transition: transform 0.16s ease, background 0.16s ease;
 }
 .term-head .eyebrow:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.32); }
-.term-head .post-link {
-  display: inline-block;
+.term-head .post-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   margin-top: 1.4rem;
 }
 .term-head h1 {
