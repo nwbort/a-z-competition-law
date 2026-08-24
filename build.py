@@ -202,20 +202,15 @@ def load() -> tuple[dict, list[dict], list[dict], dict[str, str]]:
 
     topics = collect_topics(terms)
 
+    # Letter pages list every post that introduced one of that letter's terms.
+    # Derived from each term's own "post" field, in order of first appearance,
+    # so there's no separate list to keep in sync by hand.
     posts: dict[str, list[str]] = {}
-    for letter, urls in data.get("posts", {}).items():
-        letter = str(letter).strip().upper()
-        if letter not in LETTERS:
-            raise SystemExit(f"'posts' key {letter!r} is not a single letter A-Z")
-        urls = urls if isinstance(urls, list) else [urls]
-        posts[letter] = [str(u).strip() for u in urls if str(u).strip()]
-
     for t in terms:
-        if t["post"] and t["post"] not in posts.get(t["letter"], []):
-            raise SystemExit(
-                f"Term {t['term']!r} has a 'post' URL that isn't listed in "
-                f"posts[{t['letter']!r}]"
-            )
+        if t["post"]:
+            letter_posts = posts.setdefault(t["letter"], [])
+            if t["post"] not in letter_posts:
+                letter_posts.append(t["post"])
 
     return site, terms, topics, posts
 
