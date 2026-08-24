@@ -10,10 +10,23 @@
   },
 
   "posts": {
-    "A": ["https://www.linkedin.com/posts/meigong1_a-z-competition-law-directionary-a-ugcPost-7493430376644890624-YPMG"]
+    "A": [
+      "https://www.linkedin.com/posts/meigong1_a-z-competition-law-directionary-a-ugcPost-7493430376644890624-YPMG",
+      "https://www.linkedin.com/posts/meigong1_competition-law-directionary-mei-gong-ugcPost-7497780124256354304-5KP7"
+    ]
   },
 
   "terms": [
+    {
+      "term": "Access Regime",
+      "emoji": "🚉",
+      "definition": [
+        "A legal framework within competition law that allows third-party businesses to use essential infrastructure owned by a competitor on reasonable terms and conditions.",
+        "Examples found in rail, wheat export and telecommunications networks."
+      ],
+      "tags": ["infrastructure"],
+      "seeAlso": ["ACCC"]
+    },
     {
       "term": "ACCC",
       "aka": "Australian Competition and Consumer Commission",
@@ -37,6 +50,16 @@
       "seeAlso": ["ACCC"]
     },
     {
+      "term": "Advertising",
+      "emoji": "📣",
+      "definition": [
+        "All the communications that businesses (and sometimes influencers) use to attract attention to their products and services, with the goal of maximising customer conversion and revenue.",
+        "Key focus area for many misleading or deceptive conduct claims."
+      ],
+      "tags": ["consumer", "marketing"],
+      "seeAlso": ["ACL"]
+    },
+    {
       "term": "Antitrust",
       "emoji": "🌏",
       "definition": [
@@ -44,6 +67,16 @@
         "Refers to rules and laws that promote fair competition between businesses."
       ],
       "tags": ["international"],
+      "seeAlso": ["ACCC"]
+    },
+    {
+      "term": "Authorisation",
+      "emoji": "✅",
+      "definition": [
+        "A public pathway involving an ACCC application to protect conduct you are about to engage in that may otherwise contravene competition laws.",
+        "Depending on the conduct, you need to prove either: 1. the conduct is not likely to substantially lessen competition; or 2. the conduct is likely to result in a net public benefit."
+      ],
+      "tags": ["enforcement", "process"],
       "seeAlso": ["ACCC"]
     }
   ]
