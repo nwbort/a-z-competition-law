@@ -201,12 +201,13 @@ def load() -> tuple[dict, list[dict], list[dict], dict[str, str]]:
 
     topics = collect_topics(terms)
 
-    posts: dict[str, str] = {}
-    for letter, url in data.get("posts", {}).items():
+    posts: dict[str, list[str]] = {}
+    for letter, urls in data.get("posts", {}).items():
         letter = str(letter).strip().upper()
         if letter not in LETTERS:
             raise SystemExit(f"'posts' key {letter!r} is not a single letter A-Z")
-        posts[letter] = str(url).strip()
+        urls = urls if isinstance(urls, list) else [urls]
+        posts[letter] = [str(u).strip() for u in urls if str(u).strip()]
 
     return site, terms, topics, posts
 
@@ -495,7 +496,23 @@ def page_topic(site: dict, topic: dict, topics: list[dict]) -> str:
     )
 
 
-def page_letter(site: dict, letter: str, items: list[dict], post_url: str = "") -> str:
+def post_links_html(urls: list[str], indent: str = "        ") -> str:
+    """One or more 'See the LinkedIn post' pills, numbered when there's more than one."""
+    if not urls:
+        return ""
+    multiple = len(urls) > 1
+    links = "".join(
+        f'\n{indent}  <a class="pill post-link" href="{esc(url)}" target="_blank" '
+        f'rel="noopener noreferrer">📣 LinkedIn post {i}</a>'
+        if multiple else
+        f'\n{indent}  <a class="pill post-link" href="{esc(url)}" target="_blank" '
+        f'rel="noopener noreferrer">📣 See the LinkedIn post</a>'
+        for i, url in enumerate(urls, start=1)
+    )
+    return f'\n{indent}<div class="post-links">{links}\n{indent}</div>'
+
+
+def page_letter(site: dict, letter: str, items: list[dict], post_urls: list[str] | None = None) -> str:
     idx = LETTERS.index(letter)
     prev_l = LETTERS[idx - 1] if idx > 0 else None
     next_l = LETTERS[idx + 1] if idx < len(LETTERS) - 1 else None
@@ -533,11 +550,7 @@ def page_letter(site: dict, letter: str, items: list[dict], post_url: str = "") 
 """
         desc = f"Australian competition law words beginning with {letter} — coming soon."
 
-    post_link = (
-        f'\n        <a class="pill post-link" href="{esc(post_url)}" target="_blank" '
-        f'rel="noopener noreferrer">📣 See the LinkedIn post</a>'
-        if post_url else ""
-    )
+    post_link = post_links_html(post_urls or [], indent="        ")
 
     body = f"""      <section class="term-head">
         <a class="eyebrow" href="../">← All letters</a>
@@ -557,7 +570,7 @@ def page_letter(site: dict, letter: str, items: list[dict], post_url: str = "") 
     )
 
 
-def page_term(site: dict, t: dict, siblings: list[dict], post_url: str = "") -> str:
+def page_term(site: dict, t: dict, siblings: list[dict], post_urls: list[str] | None = None) -> str:
     i = siblings.index(t)
     prev_t = siblings[i - 1] if i > 0 else None
     next_t = siblings[i + 1] if i < len(siblings) - 1 else None
@@ -604,11 +617,7 @@ def page_term(site: dict, t: dict, siblings: list[dict], post_url: str = "") -> 
 
     emoji = f'<span aria-hidden="true">{esc(t["emoji"])}</span> ' if t["emoji"] else ""
 
-    post_link = (
-        f'\n          <a class="pill post-link" href="{esc(post_url)}" target="_blank" '
-        f'rel="noopener noreferrer">📣 See the LinkedIn post</a>'
-        if post_url else ""
-    )
+    post_link = post_links_html(post_urls or [], indent="          ")
 
     body = f"""      <article>
         <header class="term-head">
@@ -687,9 +696,9 @@ def build() -> None:
 
     for letter in LETTERS:
         items = by_letter.get(letter, [])
-        write(OUT / letter.lower() / "index.html", page_letter(site, letter, items, posts.get(letter, "")))
+        write(OUT / letter.lower() / "index.html", page_letter(site, letter, items, posts.get(letter, [])))
         for t in items:
-            write(OUT / letter.lower() / t["slug"] / "index.html", page_term(site, t, items, posts.get(letter, "")))
+            write(OUT / letter.lower() / t["slug"] / "index.html", page_term(site, t, items, posts.get(letter, [])))
 
     write(OUT / "topics" / "index.html", page_topics(site, topics))
     for topic in topics:
