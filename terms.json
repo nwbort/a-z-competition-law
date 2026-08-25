@@ -1,5 +1,5 @@
 {
-  "_readme": "This is the whole dictionary. Add a word by adding an object to \"terms\" and running: python3 build.py. Fields: term (required), aka, definition (string or list of paragraphs), plainly, tags, seeAlso, emoji. \"posts\" maps a letter to the LinkedIn post(s) announcing it, shown as link(s) on that letter's page. Value can be a single URL string or a list of URL strings for multiple posts.",
+  "_readme": "This is the whole dictionary. Add a word by adding an object to \"terms\" and running: python3 build.py. Fields: term (required), aka, definition (string or list of paragraphs), plainly, tags, seeAlso, emoji, post (the URL of the LinkedIn post that introduced this term, shown as a link on its term page). Each letter's page automatically lists every distinct post its terms cite, in the order those terms first appear — no separate list to maintain.",
 
   "site": {
     "title": "A–Z Competition Law Dictionary",
@@ -9,11 +9,18 @@
     "lang": "en-AU"
   },
 
-  "posts": {
-    "A": ["https://www.linkedin.com/posts/meigong1_a-z-competition-law-directionary-a-ugcPost-7493430376644890624-YPMG"]
-  },
-
   "terms": [
+    {
+      "term": "Access Regime",
+      "emoji": "🚉",
+      "definition": [
+        "A legal framework within competition law that allows third-party businesses to use essential infrastructure owned by a competitor on reasonable terms and conditions.",
+        "Examples found in rail, wheat export and telecommunications networks."
+      ],
+      "tags": ["infrastructure"],
+      "seeAlso": ["ACCC"],
+      "post": "https://www.linkedin.com/posts/meigong1_competition-law-directionary-mei-gong-ugcPost-7497780124256354304-5KP7"
+    },
     {
       "term": "ACCC",
       "aka": "Australian Competition and Consumer Commission",
@@ -23,7 +30,8 @@
         "Federal regulator of competition and consumer law in Australia."
       ],
       "tags": ["regulator", "enforcement"],
-      "seeAlso": ["ACL"]
+      "seeAlso": ["ACL"],
+      "post": "https://www.linkedin.com/posts/meigong1_a-z-competition-law-directionary-a-ugcPost-7493430376644890624-YPMG"
     },
     {
       "term": "ACL",
@@ -34,7 +42,19 @@
         "Federal legislation for consumer law regulation in Australia - found in Schedule 2 of the Competition and Consumer Act 2010 (Cth)."
       ],
       "tags": ["legislation", "consumer"],
-      "seeAlso": ["ACCC"]
+      "seeAlso": ["ACCC"],
+      "post": "https://www.linkedin.com/posts/meigong1_a-z-competition-law-directionary-a-ugcPost-7493430376644890624-YPMG"
+    },
+    {
+      "term": "Advertising",
+      "emoji": "📣",
+      "definition": [
+        "All the communications that businesses (and sometimes influencers) use to attract attention to their products and services, with the goal of maximising customer conversion and revenue.",
+        "Key focus area for many misleading or deceptive conduct claims."
+      ],
+      "tags": ["consumer", "marketing"],
+      "seeAlso": ["ACL"],
+      "post": "https://www.linkedin.com/posts/meigong1_competition-law-directionary-mei-gong-ugcPost-7497780124256354304-5KP7"
     },
     {
       "term": "Antitrust",
@@ -44,7 +64,19 @@
         "Refers to rules and laws that promote fair competition between businesses."
       ],
       "tags": ["international"],
-      "seeAlso": ["ACCC"]
+      "seeAlso": ["ACCC"],
+      "post": "https://www.linkedin.com/posts/meigong1_a-z-competition-law-directionary-a-ugcPost-7493430376644890624-YPMG"
+    },
+    {
+      "term": "Authorisation",
+      "emoji": "✅",
+      "definition": [
+        "A public pathway involving an ACCC application to protect conduct you are about to engage in that may otherwise contravene competition laws.",
+        "Depending on the conduct, you need to prove either: 1. the conduct is not likely to substantially lessen competition; or 2. the conduct is likely to result in a net public benefit."
+      ],
+      "tags": ["enforcement", "process"],
+      "seeAlso": ["ACCC"],
+      "post": "https://www.linkedin.com/posts/meigong1_competition-law-directionary-mei-gong-ugcPost-7497780124256354304-5KP7"
     }
   ]
 }

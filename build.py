@@ -173,6 +173,7 @@ def load() -> tuple[dict, list[dict], list[dict], dict[str, str]]:
                 "plainly": str(raw.get("plainly", "")).strip(),
                 "tags": [str(t).strip() for t in raw.get("tags", []) if str(t).strip()],
                 "seeAlso": [str(t).strip() for t in raw.get("seeAlso", []) if str(t).strip()],
+                "post": str(raw.get("post", "")).strip(),
                 "letter": letter,
                 "slug": slug,
                 "url": url,
@@ -201,13 +202,15 @@ def load() -> tuple[dict, list[dict], list[dict], dict[str, str]]:
 
     topics = collect_topics(terms)
 
+    # Letter pages list every post that introduced one of that letter's terms.
+    # Derived from each term's own "post" field, in order of first appearance,
+    # so there's no separate list to keep in sync by hand.
     posts: dict[str, list[str]] = {}
-    for letter, urls in data.get("posts", {}).items():
-        letter = str(letter).strip().upper()
-        if letter not in LETTERS:
-            raise SystemExit(f"'posts' key {letter!r} is not a single letter A-Z")
-        urls = urls if isinstance(urls, list) else [urls]
-        posts[letter] = [str(u).strip() for u in urls if str(u).strip()]
+    for t in terms:
+        if t["post"]:
+            letter_posts = posts.setdefault(t["letter"], [])
+            if t["post"] not in letter_posts:
+                letter_posts.append(t["post"])
 
     return site, terms, topics, posts
 
@@ -698,7 +701,8 @@ def build() -> None:
         items = by_letter.get(letter, [])
         write(OUT / letter.lower() / "index.html", page_letter(site, letter, items, posts.get(letter, [])))
         for t in items:
-            write(OUT / letter.lower() / t["slug"] / "index.html", page_term(site, t, items, posts.get(letter, [])))
+            term_posts = [t["post"]] if t["post"] else posts.get(letter, [])
+            write(OUT / letter.lower() / t["slug"] / "index.html", page_term(site, t, items, term_posts))
 
     write(OUT / "topics" / "index.html", page_topics(site, topics))
     for topic in topics:
