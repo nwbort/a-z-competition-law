@@ -77,6 +77,55 @@
       "tags": ["enforcement", "process"],
       "seeAlso": ["ACCC"],
       "post": "https://www.linkedin.com/posts/meigong1_competition-law-directionary-mei-gong-ugcPost-7497780124256354304-5KP7"
+    },
+    {
+      "term": "Bait and Switch",
+      "aka": "Bait and switch advertising",
+      "emoji": "🎣",
+      "definition": [
+        "One of many examples of misleading advertising practices.",
+        "Products or services are advertised at a very cheap price to attract your interest as a consumer.",
+        "BUT when you go to buy, the products are 'out of stock' (meaning the business may never have stocked a reasonable quantity to be able to sell for a reasonable time to begin with)."
+      ],
+      "tags": ["consumer", "marketing"],
+      "seeAlso": ["Advertising", "ACL"],
+      "post": "https://www.linkedin.com/posts/meigong1_b-of-a-z-competition-series-mei-gong-ugcPost-7531463226102874115-x7HN"
+    },
+    {
+      "term": "Behavioural Undertaking",
+      "emoji": "🤞",
+      "definition": [
+        "A remedy that can resolve competition concerns in a merger or acquisition.",
+        "Court enforceable and rarely accepted by the regulator.",
+        "Involves a commitment to do or refrain from doing certain actions. For example, anti-discrimination obligations, or limits on the ability of the merged entity to increase price / decrease quality for a period of time."
+      ],
+      "tags": ["mergers", "enforcement"],
+      "seeAlso": ["ACCC"],
+      "post": "https://www.linkedin.com/posts/meigong1_b-of-a-z-competition-series-mei-gong-ugcPost-7531463226102874115-x7HN"
+    },
+    {
+      "term": "Bid Rigging",
+      "emoji": "🔨",
+      "definition": [
+        "A form of cartel conduct, also known as collusive tendering.",
+        "Competitors agreeing what bids to submit to determine the winner in advance.",
+        "Examples: not bidding at all, taking turns at winning bids, or bidding above a minimum 'floor'."
+      ],
+      "tags": ["conduct", "cartels"],
+      "seeAlso": ["Boycott", "ACCC"],
+      "post": "https://www.linkedin.com/posts/meigong1_b-of-a-z-competition-series-mei-gong-ugcPost-7531463226102874115-x7HN"
+    },
+    {
+      "term": "Boycott",
+      "emoji": "🚫",
+      "definition": [
+        "When parties agree or act together to refuse to supply or acquire goods or services, or prevent a third party from doing so.",
+        "High risk conduct. May amount to cartel conduct or some other contravention of competition law.",
+        "Very rarely authorised by the ACCC."
+      ],
+      "tags": ["conduct", "cartels"],
+      "seeAlso": ["Bid Rigging", "Authorisation"],
+      "post": "https://www.linkedin.com/posts/meigong1_b-of-a-z-competition-series-mei-gong-ugcPost-7531463226102874115-x7HN"
     }
   ]
 }
